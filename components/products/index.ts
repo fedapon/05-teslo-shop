@@ -1,4 +1,4 @@
 export * from "./ProductCard"
 export * from "./ProductList"
-export * from "./ProductSizeSelector"
+export * from "./SizeSelector"
 export * from "./ProductSlideShow"

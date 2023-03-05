@@ -8,6 +8,7 @@ import {
     Grid,
     Typography,
     Link,
+    Chip,
 } from "@mui/material"
 import { IProduct } from "@/interfaces"
 
@@ -42,6 +43,19 @@ export const ProductCard = ({ product }: Props) => {
                 >
                     <Link>
                         <CardActionArea>
+                            {product.inStock === 0 && (
+                                <Chip
+                                    color="primary"
+                                    label="No hay disponibles"
+                                    sx={{
+                                        position: "absolute",
+                                        zIndex: 99,
+                                        top: "10px",
+                                        left: "10px",
+                                    }}
+                                />
+                            )}
+
                             <CardMedia
                                 component="img"
                                 className="fadeIn"

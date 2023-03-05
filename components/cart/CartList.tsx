@@ -7,32 +7,52 @@ import {
     CardMedia,
     Button,
 } from "@mui/material"
-import { initialData } from "@/database/products"
 import { Box } from "@mui/system"
 import { ItemCounter } from "../ui"
+import { useContext } from "react"
+import { CartContext } from "@/context"
+import { ICartProduct } from "@/interfaces"
 
 interface Props {
     editable?: boolean
 }
 
-const productsInCart = [
-    initialData.products[0],
-    initialData.products[1],
-    initialData.products[2],
-]
-
 export const CartList = ({ editable = false }: Props) => {
+    const { cart, updateCartQuantity, removeCartProduct } =
+        useContext(CartContext)
+
+    const onNewCartQuantity = (
+        product: ICartProduct,
+        newQuantityValue: number
+    ) => {
+        product.quantity = newQuantityValue
+        updateCartQuantity(product)
+    }
+
+    const onRemoveCartProduct = (product: ICartProduct) => {
+        removeCartProduct(product)
+    }
+
     return (
         <>
-            {productsInCart.map((product) => (
-                <Grid container spacing={2} sx={{ mb: 1 }} key={product.slug}>
+            {cart.map((product) => (
+                <Grid
+                    container
+                    spacing={2}
+                    sx={{ mb: 1 }}
+                    key={product.slug + product.size}
+                >
                     <Grid item xs={3}>
                         {/* llevar a la página del producto */}
-                        <NextLink href="/product/slug" passHref legacyBehavior>
+                        <NextLink
+                            href={`/product/${product.slug}`}
+                            passHref
+                            legacyBehavior
+                        >
                             <Link>
                                 <CardActionArea>
                                     <CardMedia
-                                        image={`/products/${product.images[0]}`}
+                                        image={`/products/${product.image}`}
                                         component="img"
                                         sx={{ borderRadius: "5px" }}
                                     />
@@ -46,12 +66,23 @@ export const CartList = ({ editable = false }: Props) => {
                                 {product.title}
                             </Typography>
                             <Typography variant="body1">
-                                Talla: <strong>M</strong>
+                                Talla: <strong>{product.size}</strong>
                             </Typography>
                             {editable ? (
-                                <ItemCounter />
+                                <ItemCounter
+                                    currentValue={product.quantity}
+                                    maxValue={10}
+                                    updatedQuantity={(value) => {
+                                        onNewCartQuantity(product, value)
+                                    }}
+                                />
                             ) : (
-                                <Typography variant="h5">3 items</Typography>
+                                <Typography variant="h5">
+                                    {product.quantity}{" "}
+                                    {product.quantity > 1
+                                        ? "productos"
+                                        : "producto"}
+                                </Typography>
                             )}
                         </Box>
                     </Grid>
@@ -66,7 +97,11 @@ export const CartList = ({ editable = false }: Props) => {
                             ${product.price}
                         </Typography>
                         {editable && (
-                            <Button variant="text" color="secondary">
+                            <Button
+                                variant="text"
+                                color="secondary"
+                                onClick={() => onRemoveCartProduct(product)}
+                            >
                                 Remover
                             </Button>
                         )}

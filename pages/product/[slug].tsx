@@ -1,9 +1,12 @@
+import { useContext, useState } from "react"
 import { GetStaticPaths, GetStaticProps } from "next"
+import { useRouter } from "next/router"
 import { Box, Button, Chip, Grid, Typography } from "@mui/material"
+import { CartContext } from "@/context"
 import { ShopLayout } from "@/components/layouts"
-import { ProductSizeSelector, ProductSlideShow } from "@/components/products"
 import { ItemCounter } from "@/components/ui"
-import { IProduct } from "@/interfaces"
+import { SizeSelector, ProductSlideShow } from "@/components/products"
+import { ICartProduct, IProduct, ISize } from "@/interfaces"
 import { dbProducts } from "@/database"
 
 interface Props {
@@ -11,10 +14,42 @@ interface Props {
 }
 
 const ProductPage = ({ product }: Props) => {
-    // const router = useRouter()
-    // const { products: product, isLoading } = useProduct(
-    //     `/products/${router.query.slug}`
-    // )
+    const router = useRouter()
+
+    const { addProductToCart } = useContext(CartContext)
+
+    const [tempCartProduct, setTempCartProduct] = useState<ICartProduct>({
+        _id: product._id,
+        image: product.images[0],
+        price: product.price,
+        size: undefined,
+        slug: product.slug,
+        title: product.title,
+        gender: product.gender,
+        quantity: 1,
+    })
+
+    const onSelectedSize = (size: ISize) => {
+        setTempCartProduct((currentProduct) => ({
+            ...currentProduct,
+            size,
+        }))
+    }
+
+    const onUpdateQuantity = (quantity: number) => {
+        setTempCartProduct((currentProduct) => ({
+            ...currentProduct,
+            quantity,
+        }))
+    }
+
+    const onAddProduct = () => {
+        if (!tempCartProduct.size) return
+
+        addProductToCart(tempCartProduct)
+
+        router.push("/cart")
+    }
 
     return (
         <ShopLayout title={product.title} pageDescription={product.description}>
@@ -31,34 +66,51 @@ const ProductPage = ({ product }: Props) => {
                         <Typography variant="subtitle1" component="h1">
                             ${product.price}
                         </Typography>
+
                         {/* cantidad */}
                         <Box sx={{ marginY: 2 }}>
                             <Typography variant="subtitle2">
                                 Cantidad
                             </Typography>
-                            <ItemCounter />
-                            <ProductSizeSelector
-                                // selectedSize={product.sizes[0]}
-                                sizes={product.sizes}
+                            <ItemCounter
+                                currentValue={tempCartProduct.quantity}
+                                updatedQuantity={onUpdateQuantity}
+                                maxValue={product.inStock}
                             />
-                            {/* agregar al carrito */}
-                            <Button color="secondary" className="circular-btn">
-                                Agregar al carrito
+                            <SizeSelector
+                                sizes={product.sizes}
+                                selectedSize={tempCartProduct.size}
+                                onSelectedSize={onSelectedSize}
+                            />
+                        </Box>
+
+                        {/* agregar al carrito */}
+                        {product.inStock > 0 ? (
+                            <Button
+                                color="secondary"
+                                className="circular-btn"
+                                onClick={onAddProduct}
+                            >
+                                {tempCartProduct.size
+                                    ? "Agregar al carrito"
+                                    : "Seleccione una talla"}
                             </Button>
-                            {/* <Chip
+                        ) : (
+                            <Chip
                                 label="No hay disponibles"
                                 color="error"
                                 variant="outlined"
-                            /> */}
-                            {/* description */}
-                            <Box sx={{ mt: 3 }}>
-                                <Typography variant="subtitle2">
-                                    Descripción
-                                </Typography>
-                                <Typography variant="body2">
-                                    {product.description}
-                                </Typography>
-                            </Box>
+                            />
+                        )}
+
+                        {/* description */}
+                        <Box sx={{ mt: 3 }}>
+                            <Typography variant="subtitle2">
+                                Descripción
+                            </Typography>
+                            <Typography variant="body2">
+                                {product.description}
+                            </Typography>
                         </Box>
                     </Box>
                 </Grid>
