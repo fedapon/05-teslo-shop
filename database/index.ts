@@ -1,5 +1,5 @@
 export * as db from "./db"
 //base de datos de prueba
-export * as seedDatabase from "./products"
+export * as seedDatabase from "./seed-data"
 export * from "./constants"
 export * as dbProducts from "./dbProducts"
