@@ -4,6 +4,7 @@ import Cookies from "js-cookie"
 import { AuthContext, authReducer } from "./"
 import { IUser } from "@/interfaces"
 import { tesloApi } from "@/api"
+import { useRouter } from "next/router"
 
 export interface AuthState {
     isLoggedIn: boolean
@@ -16,6 +17,7 @@ const AUTH_INITIAL_STATE: AuthState = {
 }
 
 export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
+    const router = useRouter()
     const [state, dispatch] = useReducer(authReducer, AUTH_INITIAL_STATE)
 
     const loginUser = async (
@@ -34,6 +36,12 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
         } catch (error) {
             return false
         }
+    }
+
+    const logoutUser = () => {
+        Cookies.remove("token")
+        Cookies.remove("cart")
+        router.reload()
     }
 
     const registerUser = async (
@@ -76,6 +84,7 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
 
     const checkToken = async () => {
         try {
+            if (!Cookies.get("token")) return
             const { data } = await tesloApi.get("/user/validate-token")
             const { token: newToken, user } = data
             Cookies.set("token", newToken)
@@ -94,6 +103,7 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
                 ...state,
                 // Methods
                 loginUser,
+                logoutUser,
                 registerUser,
             }}
         >

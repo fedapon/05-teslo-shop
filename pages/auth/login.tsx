@@ -41,7 +41,8 @@ export const LoginPage = () => {
             setTimeout(() => setShowError(false), 3000)
             return
         }
-        router.replace("/")
+        const destination = router.query.p?.toString() || "/"
+        router.replace(destination)
     }
 
     return (
@@ -105,7 +106,11 @@ export const LoginPage = () => {
                         </Grid>
                         <Grid item xs={12} display="flex" justifyContent="end">
                             <NextLink
-                                href="/auth/register"
+                                href={
+                                    router.query.p
+                                        ? `/auth/register?p=${router.query.p?.toString()}`
+                                        : "/auth/register"
+                                }
                                 passHref
                                 legacyBehavior
                             >
