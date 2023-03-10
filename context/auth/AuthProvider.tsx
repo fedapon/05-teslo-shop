@@ -5,6 +5,7 @@ import { AuthContext, authReducer } from "./"
 import { IUser } from "@/interfaces"
 import { tesloApi } from "@/api"
 import { useRouter } from "next/router"
+import { useSession, signOut } from "next-auth/react"
 
 export interface AuthState {
     isLoggedIn: boolean
@@ -17,8 +18,16 @@ const AUTH_INITIAL_STATE: AuthState = {
 }
 
 export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
-    const router = useRouter()
     const [state, dispatch] = useReducer(authReducer, AUTH_INITIAL_STATE)
+    const { data, status } = useSession()
+    const router = useRouter()
+
+    useEffect(() => {
+        if (status == "authenticated") {
+            console.log({ user: data?.user })
+            dispatch({ type: "[Auth] - Login", payload: data?.user as IUser })
+        }
+    }, [data, status])
 
     const loginUser = async (
         email: string,
@@ -39,9 +48,18 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
     }
 
     const logoutUser = () => {
-        Cookies.remove("token")
         Cookies.remove("cart")
-        router.reload()
+        Cookies.remove("firstName")
+        Cookies.remove("lastName")
+        Cookies.remove("address")
+        Cookies.remove("address2")
+        Cookies.remove("zip")
+        Cookies.remove("city")
+        Cookies.remove("country")
+        Cookies.remove("phone")
+        signOut()
+        // Cookies.remove("token")
+        // router.reload()
     }
 
     const registerUser = async (
@@ -78,9 +96,9 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
         }
     }
 
-    useEffect(() => {
-        checkToken()
-    }, [])
+    // useEffect(() => {
+    //     checkToken()
+    // }, [])
 
     const checkToken = async () => {
         try {

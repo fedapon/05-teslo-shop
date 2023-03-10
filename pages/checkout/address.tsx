@@ -14,7 +14,7 @@ import { jwt, countries } from "@/utils"
 import { useForm } from "react-hook-form"
 import Cookies from "js-cookie"
 import { useRouter } from "next/router"
-import { useContext } from "react"
+import { useContext, useEffect } from "react"
 import { CartContext } from "@/context"
 
 type FormData = {
@@ -36,7 +36,7 @@ const getAddressFormCookies = (): FormData => {
         address2: Cookies.get("address2") || "",
         zip: Cookies.get("zip") || "",
         city: Cookies.get("city") || "",
-        country: Cookies.get("country") || "",
+        country: Cookies.get("country") || "ARG",
         phone: Cookies.get("phone") || "",
     }
 }
@@ -164,9 +164,7 @@ const AddressPage = () => {
                                 select
                                 variant="filled"
                                 label="País"
-                                defaultValue={
-                                    Cookies.get("country") || countries[0].code
-                                }
+                                defaultValue="ARG"
                                 {...register("country", {
                                     required: "Este campo es requerido",
                                 })}

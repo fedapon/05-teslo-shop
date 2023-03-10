@@ -1,4 +1,4 @@
-import { useContext } from "react"
+import { useContext, useEffect } from "react"
 import NextLink from "next/link"
 import {
     Box,
@@ -14,9 +14,18 @@ import { CartContext } from "@/context"
 import { ShopLayout } from "@/components/layouts"
 import { CartList, OrderSummary } from "@/components/cart"
 import { countries } from "@/utils"
+import Cookies from "js-cookie"
+import { useRouter } from "next/router"
 
 const SummaryPage = () => {
+    const router = useRouter()
     const { shippingAddress, numberOfItems } = useContext(CartContext)
+
+    useEffect(() => {
+        if (!Cookies.get("firstName")) {
+            router.push("/checkout/address")
+        }
+    }, [router])
 
     if (!shippingAddress) return <></>
 
