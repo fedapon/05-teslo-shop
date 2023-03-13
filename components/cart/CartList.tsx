@@ -11,13 +11,14 @@ import { Box } from "@mui/system"
 import { ItemCounter } from "../ui"
 import { useContext } from "react"
 import { CartContext } from "@/context"
-import { ICartProduct } from "@/interfaces"
+import { ICartProduct, IOrderItem } from "@/interfaces"
 
 interface Props {
     editable?: boolean
+    products?: IOrderItem[]
 }
 
-export const CartList = ({ editable = false }: Props) => {
+export const CartList = ({ editable = false, products }: Props) => {
     const { cart, updateCartQuantity, removeCartProduct } =
         useContext(CartContext)
 
@@ -33,9 +34,11 @@ export const CartList = ({ editable = false }: Props) => {
         removeCartProduct(product)
     }
 
+    const productsToShow = products ? products : cart
+
     return (
         <>
-            {cart.map((product) => (
+            {productsToShow.map((product) => (
                 <Grid
                     container
                     spacing={2}
@@ -73,7 +76,10 @@ export const CartList = ({ editable = false }: Props) => {
                                     currentValue={product.quantity}
                                     maxValue={10}
                                     updatedQuantity={(value) => {
-                                        onNewCartQuantity(product, value)
+                                        onNewCartQuantity(
+                                            product as ICartProduct,
+                                            value
+                                        )
                                     }}
                                 />
                             ) : (
@@ -100,7 +106,9 @@ export const CartList = ({ editable = false }: Props) => {
                             <Button
                                 variant="text"
                                 color="secondary"
-                                onClick={() => onRemoveCartProduct(product)}
+                                onClick={() =>
+                                    onRemoveCartProduct(product as ICartProduct)
+                                }
                             >
                                 Remover
                             </Button>

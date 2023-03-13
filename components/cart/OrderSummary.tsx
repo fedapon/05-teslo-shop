@@ -1,10 +1,22 @@
 import { CartContext } from "@/context"
+import { IOrder } from "@/interfaces"
 import { currency } from "@/utils"
 import { Grid, Typography } from "@mui/material"
 import { useContext } from "react"
 
-export const OrderSummary = () => {
-    const { numberOfItems, subTotal, tax, total } = useContext(CartContext)
+interface Props {
+    order?: IOrder
+}
+
+export const OrderSummary = ({ order }: Props) => {
+    let { numberOfItems, subTotal, tax, total } = useContext(CartContext)
+    if (order) {
+        numberOfItems = order.numberOfItems
+        subTotal = order.subTotal
+        tax = order.tax
+        total = order.total
+    }
+
     return (
         <Grid container>
             <Grid item xs={6}>

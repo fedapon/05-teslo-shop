@@ -5,6 +5,7 @@ declare module "next-auth" {
         accessToken?: string
     }
     interface User {
+        id?: string
         _id: string
         name?: string
         email?: string
